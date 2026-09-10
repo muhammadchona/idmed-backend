@@ -1,6 +1,6 @@
 package mz.org.fgh.sifmoz.backend.packaging
 
-import com.google.gson.Gson
+
 import grails.gorm.services.Service
 import grails.gorm.transactions.Transactional
 import groovy.sql.Sql
@@ -24,7 +24,7 @@ import mz.org.fgh.sifmoz.backend.utilities.Utilities
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import com.google.gson.Gson
+
 
 import javax.sql.DataSource
 import java.sql.Timestamp

@@ -85,6 +85,17 @@ class PatientVisitController extends RestfulController {
         def poc_pack = null
         def poc_service = null
 
+        // Mobile synchronization can be retried after a timeout. The visit id
+        // is the operation id: once it exists, returning it without reducing
+        // stock again prevents duplicate PackagedDrugStock records and saldo.
+        if (objectJSON.id && objectJSON.syncStatus == 'R') {
+            PatientVisit synchronizedVisit = PatientVisit.get(objectJSON.id.toString())
+            if (synchronizedVisit) {
+                render JSONSerializer.setJsonObjectResponse(synchronizedVisit) as JSON
+                return
+            }
+        }
+
         if (!objectJSON?.patientVisitDetails?.isEmpty()) {
             def amtPerTimePackaged = objectJSON?.patientVisitDetails[0]?.pack?.packagedDrugs[0]?.amtPerTime + ""
             objectJSON?.patientVisitDetails[0]?.pack?.packagedDrugs[0]?.amtPerTime = amtPerTimePackaged ? Double.parseDouble(amtPerTimePackaged) : 0
@@ -641,8 +652,15 @@ class PatientVisitController extends RestfulController {
 
     private static String getFirstExpiredBatchFromDrug(Drug drug, Pack pack) {
 
+        String dispensingClinicId = pack.origin ?: pack.clinic?.id
+        Clinic dispensingClinic = dispensingClinicId ? Clinic.findById(dispensingClinicId) : null
+
+        if (!dispensingClinic)
+            return null
+
         def stockList = Stock.
-                findAllByDrugAndExpireDateGreaterThanEqualsAndExpireDateGreaterThanAndStockMovimentGreaterThan(drug,
+                findAllByDrugAndClinicAndExpireDateGreaterThanEqualsAndExpireDateGreaterThanAndStockMovimentGreaterThan(drug,
+                        dispensingClinic,
                         Utilities.addDaysInDate(pack.pickupDate, ConvertDateUtils.getDaysBetween(pack.pickupDate,pack.nextPickUpDate).intValue()),
                         new Date(), 0,
                         [sort: "expireDate", order: "asc"])
