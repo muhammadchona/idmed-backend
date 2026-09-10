@@ -8,7 +8,7 @@ response.status 400
 json {
 //    message "Forbiden test for login"
 //    error 200
-    message "Welcome to iDMED version 1.8.0!"
+    message "Welcome to iDMED version 2.0.0!"
     environment Environment.current.name
     grailsversion GrailsUtil.grailsVersion
     groovyversion GroovySystem.getVersion()

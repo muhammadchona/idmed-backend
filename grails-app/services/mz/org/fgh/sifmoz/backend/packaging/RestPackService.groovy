@@ -272,7 +272,7 @@ class RestPackService {
     boolean isValidLocationUuid(Pack pack,PatientVisitDetails patientVisitDetails, String urlBase, String openMRSUuuidLocation) {
         String urlPath = GET_LOCATION  + openMRSUuuidLocation
         String response = new RestOpenMRSClient().getResponseOpenMRSClient(pack.providerUuid, null, urlBase, urlPath, requestMethod_GET)
-        if (response.length() < 50) {
+        if (response?.length() < 50) {
             saveErrorLog(pack, patientVisitDetails, patientVisitDetails.patientVisit.patient, INVALID_LOCATION, null)
             return false
         }

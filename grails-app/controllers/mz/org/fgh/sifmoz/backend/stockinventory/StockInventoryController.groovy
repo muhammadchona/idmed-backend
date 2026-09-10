@@ -1,7 +1,6 @@
 package mz.org.fgh.sifmoz.backend.stockinventory
 
 import grails.converters.JSON
-import grails.gorm.transactions.Transactional
 import grails.rest.RestfulController
 import grails.validation.ValidationException
 import mz.org.fgh.sifmoz.backend.convertDateUtils.ConvertDateUtils
@@ -10,9 +9,13 @@ import mz.org.fgh.sifmoz.backend.stock.StockService
 import mz.org.fgh.sifmoz.backend.utilities.JSONSerializer
 import mz.org.fgh.sifmoz.backend.utilities.Utilities
 
-import static org.springframework.http.HttpStatus.*
+import static org.springframework.http.HttpStatus.NOT_FOUND
+import static org.springframework.http.HttpStatus.NO_CONTENT
+import static org.springframework.http.HttpStatus.OK
 
-class InventoryController extends RestfulController{
+import grails.gorm.transactions.Transactional
+
+class StockInventoryController extends RestfulController{
 
     IInventoryService inventoryService
     StockService stockService
@@ -22,7 +25,7 @@ class InventoryController extends RestfulController{
     static responseFormats = ['json', 'xml']
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    InventoryController() {
+    StockInventoryController() {
         super(Inventory)
     }
 

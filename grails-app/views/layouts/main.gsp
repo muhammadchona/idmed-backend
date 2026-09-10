@@ -40,7 +40,7 @@
                 <strong class="centered">
                     <a class="text-black-50" href="#" target="_blank">Version</a>
                 </strong>
-                <p>1.8.0</p>
+                <p>2.0.0</p>
             </div>
         </div>
     </div>

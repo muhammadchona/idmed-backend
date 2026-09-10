@@ -33,9 +33,9 @@ abstract class PatientService implements IPatientService {
     @Autowired
     DataSource dataSource
 
-    private static final String CODE_PATTERN = /^[0-9\/\-_]+$"/
+    private static final String CODE_PATTERN = '^[0-9/_-]+$'
 
-    private static final String NAME_PATTERN = /^[a-zA-ZÀ-ÿ\\s]+$"/
+    private static final String NAME_PATTERN = '^[a-zA-ZÀ-ÿ\\s]+$'
 
     @Override
     List<Patient> search(Patient patient, int offset, int limit) {
@@ -89,17 +89,16 @@ abstract class PatientService implements IPatientService {
         def sql = new Sql(dataSource as DataSource)
         String mainQuery = null
         if (isCode(searchString)) {
-            mainQuery = " select psi.* "+
+            mainQuery = " select p.id "+
                         " from patient p "+
                         " inner join patient_service_identifier psi on psi.patient_id = p.id "+
                         " where psi.value like '%"+searchString+"%' "+
                         " AND psi.clinic_id = :clinicId "+
                         " order by p.first_names "
 
-        }
-
+        }else
         if (isName(searchString)) {
-            mainQuery = " select p from patient p " +
+            mainQuery = " select p.id from patient p " +
                         " where (lower(p.first_names) like lower(:searchString) OR" +
                         " lower(p.middle_names) like lower(:searchString) OR " +
                         " lower(p.last_names) like lower(:searchString)) " +
@@ -107,9 +106,11 @@ abstract class PatientService implements IPatientService {
                         " order by p.first_names "
         }
 
-        List patients = sql.rows(mainQuery, [clinicId: clinicId, searchString: searchString, max: 500])
+        List patients = mainQuery!= null ? sql.rows(mainQuery, [clinicId: clinicId, searchString: searchString, max: 500]): []
 
-        return patients
+        def lastPatientList = !patients.isEmpty() ? Patient.findAllByIdInList(patients.getAt('id')): []
+
+        return lastPatientList
     }
 
     @Override
@@ -413,11 +414,11 @@ abstract class PatientService implements IPatientService {
     }
 
     static boolean isCode(String input) {
-        return input != null && input.matches(CODE_PATTERN);
+        return input != null && input  ==~ (CODE_PATTERN)
     }
 
     static boolean isName(String input) {
-        return input != null && input.matches(NAME_PATTERN);
+        return input != null && input  ==~ (NAME_PATTERN)
     }
 
 }

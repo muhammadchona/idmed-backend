@@ -71,9 +71,11 @@ class groupMemberPrescriptionController extends RestfulController{
             groupPrescription.prescription.id = UUID.fromString(objectJSON.prescription.id)
             groupPrescription.prescription.prescribedDrugs.eachWithIndex { item, index ->
                 item.id = UUID.fromString(objectJSON.prescription.prescribedDrugs[index].id)
+                item.clinic = groupPrescription.prescription.clinic
             }
             groupPrescription.prescription.prescriptionDetails.eachWithIndex { item, index ->
                 item.id = UUID.fromString(objectJSON.prescription.prescriptionDetails[index].id)
+                item.clinic = groupPrescription.prescription.clinic
             }
         }
 

@@ -1138,61 +1138,96 @@ abstract class PackService implements IPackService {
         if (service.isTARV()) {
             query =
                     """
-                    select 
-                        tr.code,
-                        tr.regimen_scheme,
-                        count(CASE WHEN ssr.code <> 'REFERIDO_PARA' AND ssr.code <> 'VOLTOU_A_SER_REFERIDO_PARA' THEN 1 END) AS totadoentes,
-                        count(CASE WHEN (ssr.code <> 'REFERIDO_PARA' AND ssr.code <> 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '1' THEN 1 END) AS linhs1,
-                        count(CASE WHEN (ssr.code <> 'REFERIDO_PARA' AND ssr.code <> 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '2' THEN 1 END) AS linha2,
-                        count(CASE WHEN (ssr.code <> 'REFERIDO_PARA' AND ssr.code <> 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '3' THEN 1 END) AS linha3,
-                        count(CASE WHEN (ssr.code <> 'REFERIDO_PARA' AND ssr.code <> 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '1_ALT' THEN 1 END) AS linhaAlt,
-                        count(CASE WHEN ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA' THEN 1 END) AS totadoentesReferidos,
-                        count(CASE WHEN (ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '1' THEN 1 END) AS linhsdc1,
-                        count(CASE WHEN (ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '2' THEN 1 END) AS linhadc2,
-                        count(CASE WHEN (ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '3' THEN 1 END) AS linhadc3,
-                        count(CASE WHEN (ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND tl.code = '1_ALT' THEN 1 END) AS linhadcAlt,                    
-                        count(CASE WHEN ((ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND package.isreferral = true) THEN 1 END) AS totalReferidos,
-                        count(CASE WHEN ((ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND package.isreferral = true) AND tl.code = '1' THEN 1 END) AS totalrefline1,
-                        count(CASE WHEN ((ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND package.isreferral = true) AND tl.code = '2' THEN 1 END) AS totalrefline2,
-                        count(CASE WHEN ((ssr.code = 'REFERIDO_PARA' OR ssr.code = 'VOLTOU_A_SER_REFERIDO_PARA') AND package.isreferral = true) AND tl.code = '3' THEN 1 END) AS totalrefline3
-                     FROM
-                     (
-                     select distinct pat.id,
-                     max(pk.pickup_date) pickupdate,
-                     max(pk.id) packid,
-                     pat.date_of_birth,
-                     cs.code service_code
-                     from patient_visit_details pvd 
-                     inner join pack pk on pk.id = pvd.pack_id
-                     inner join episode ep on ep.id = pvd.episode_id
-                     inner join patient_visit pv on pv.id = pvd.patient_visit_id
-                     inner join patient pat on pat.id = pv.patient_id
-                     inner join patient_service_identifier psi on psi.id = ep.patient_service_identifier_id
-                     inner join start_stop_reason ssr on ssr.id = ep.start_stop_reason_id
-                     inner join clinical_service cs ON cs.id = psi.service_id
-                     inner join clinic c on c.id = ep.clinic_id
-                     where ((Date(pk.pickup_date) BETWEEN :startDate AND :endDate))
-                     AND ssr.code in (select code from start_stop_reason)
-                     AND (cs.code = 'TARV' OR cs.code = 'PPE' OR cs.code = 'PREP' OR cs.code = 'CE' OR cs.code = 'CCR')
-                     group by 1,4,5
-                     order by 1
-                     ) patientstatistics
-                     inner join pack package on package.id = patientstatistics.packid
-                     inner join patient_visit_details pvd on pvd.pack_id = package.id
-                     inner join prescription p on p.id = pvd.prescription_id
-                     inner join prescription_detail pd on pd.prescription_id = p.id
-                     inner join therapeutic_line tl on tl.id = pd.therapeutic_line_id
-                     inner join episode ep on ep.id = pvd.episode_id
-                     inner join start_stop_reason ssr on ssr.id = ep.start_stop_reason_id
-                     inner join patient_visit pv on pv.id = pvd.patient_visit_id
-                     inner join dispense_type dt on dt.id = pd.dispense_type_id
-                     inner join therapeutic_regimen tr on tr.id = pd.therapeutic_regimen_id
-                    INNER JOIN 
-                        patient_service_identifier psi ON psi.id = ep.patient_service_identifier_id
-                    INNER JOIN 
-                        clinical_service cs ON cs.id = psi.service_id
-                     where (cs.code = 'TARV' OR cs.code = 'PPE' OR cs.code = 'PREP' OR cs.code = 'CE' OR cs.code = 'CCR')
-                     GROUP BY 1,2
+                    WITH latest_packs_by_patient AS (
+    SELECT DISTINCT ON (pat.id)
+        pat.id as patient_id,
+        pat.date_of_birth,
+        pk.id as pack_id,
+        pk.pickup_date,
+        cs.code as service_code,
+        ep.id as episode_id,
+        ssr.code as ssr_code
+    FROM patient_visit_details pvd 
+    INNER JOIN pack pk ON pk.id = pvd.pack_id
+    INNER JOIN episode ep ON ep.id = pvd.episode_id
+    INNER JOIN patient_visit pv ON pv.id = pvd.patient_visit_id
+    INNER JOIN patient pat ON pat.id = pv.patient_id
+    INNER JOIN patient_service_identifier psi ON psi.id = ep.patient_service_identifier_id
+    INNER JOIN start_stop_reason ssr ON ssr.id = ep.start_stop_reason_id
+    INNER JOIN clinical_service cs ON cs.id = psi.service_id
+    WHERE pk.pickup_date BETWEEN :startDate AND :endDate
+    AND (cs.code = 'TARV' OR cs.code = 'PPE' OR cs.code = 'PREP' OR cs.code = 'CE' OR cs.code = 'CCR')
+    ORDER BY pat.id, pk.pickup_date DESC, pk.id DESC
+),
+pack_details AS (
+    SELECT 
+        lp.patient_id,
+        lp.pack_id,
+        lp.ssr_code,
+        package.isreferral,
+        tr.code as tr_code,
+        tr.regimen_scheme,
+        tl.code as tl_code
+    FROM latest_packs_by_patient lp
+    INNER JOIN pack package ON package.id = lp.pack_id
+    INNER JOIN patient_visit_details pvd ON pvd.pack_id = package.id
+    INNER JOIN prescription p ON p.id = pvd.prescription_id
+    INNER JOIN prescription_detail pd ON pd.prescription_id = p.id
+    INNER JOIN therapeutic_regimen tr ON tr.id = pd.therapeutic_regimen_id
+    LEFT JOIN therapeutic_line tl ON tl.id = pd.therapeutic_line_id
+)
+SELECT 
+    tr_code as code,
+    regimen_scheme,
+    
+    COUNT(CASE WHEN ssr_code NOT IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               THEN patient_id END) AS totadoentes,
+    COUNT(CASE WHEN ssr_code NOT IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND (tl_code = '1' OR tl_code IS NULL) 
+               THEN patient_id END) AS linhs1,
+    COUNT(CASE WHEN ssr_code NOT IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '2' 
+               THEN patient_id END) AS linha2,
+    COUNT(CASE WHEN ssr_code NOT IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '3' 
+               THEN patient_id END) AS linha3,
+    COUNT(CASE WHEN ssr_code NOT IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '1_ALT' 
+               THEN patient_id END) AS linhaAlt,
+    
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               THEN patient_id END) AS totadoentesReferidos,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '1' 
+               THEN patient_id END) AS linhsdc1,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '2' 
+               THEN patient_id END) AS linhadc2,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '3' 
+               THEN patient_id END) AS linhadc3,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND tl_code = '1_ALT' 
+               THEN patient_id END) AS linhadcAlt,
+    
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND isreferral = true 
+               THEN patient_id END) AS totalReferidos,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND isreferral = true 
+               AND tl_code = '1' 
+               THEN patient_id END) AS totalrefline1,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND isreferral = true 
+               AND tl_code = '2' 
+               THEN patient_id END) AS totalrefline2,
+    COUNT(CASE WHEN ssr_code IN ('REFERIDO_PARA', 'VOLTOU_A_SER_REFERIDO_PARA') 
+               AND isreferral = true 
+               AND tl_code = '3' 
+               THEN patient_id END) AS totalrefline3
+FROM pack_details
+GROUP BY tr_code, regimen_scheme
+ORDER BY tr_code, regimen_scheme;
                     """
         } else {
             query =
@@ -2240,7 +2275,7 @@ abstract class PackService implements IPackService {
                         prescription p ON p.id = pvd.prescription_id
                     INNER JOIN 
                         prescription_detail pd ON pd.prescription_id = p.id
-                    INNER JOIN 
+                    LEFT JOIN 
                         therapeutic_line tl ON tl.id = pd.therapeutic_line_id
                     INNER JOIN 
                         episode ep ON ep.id = pvd.episode_id

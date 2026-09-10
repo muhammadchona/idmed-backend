@@ -951,7 +951,7 @@ class BootStrap {
         systemConfigsList.add(new LinkedHashMap(id: 'B5C44B42-3328-40D9-90D7-6DFF90A672D4', value: 'true', key: 'ACTIVATE_DATA_MIGRATION', description: 'Migração de dados'))
         systemConfigsList.add(new LinkedHashMap(id: '550e8400-e29b-41d4-a716-446655440000', value: '3', key: 'MAX_LOGIN_TRIES', description: 'Número máximo de tentativas para Login'))
         systemConfigsList.add(new LinkedHashMap(id: '3b241101-e2bb-4255-8caf-4136c566a964', value: '90', key: 'MAX_ACTIVE_DAYS_WITHOUT_LOGIN', description: 'Número máximo de dias em activo sem login'))
-        systemConfigsList.add(new LinkedHashMap(id: 'ff98828d-0e91-468c-809f-d391edf8cd24', value: '1.8.0', key: 'APP_VERSION', description: 'Versão do iDMED'))
+        systemConfigsList.add(new LinkedHashMap(id: 'ff98828d-0e91-468c-809f-d391edf8cd24', value: '2.0.0', key: 'APP_VERSION', description: 'Versão do iDMED'))
 
         // Configuação padrao das rotinas
         systemConfigsList.add(new LinkedHashMap(id: '8F2E4B1A-9C3D-4E5F-A1B2-C3D4E5F67890', value: 'true', key: 'DISPENSA_IDMED_OPENMRS_ATIVO', description: 'Envio de dispensas do IDMED para OpenMRS'))
@@ -1060,6 +1060,7 @@ class BootStrap {
 
     List<Object> listDispenseType() {
         List<Object> dispenseTypeList = new ArrayList<>()
+        dispenseTypeList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbf823190010', code: 'DD', description: 'Dispensa Diária'))
         dispenseTypeList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbf823190004', code: 'DN', description: 'Dispensa Semanal'))
         dispenseTypeList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbf823190005', code: 'FRM', description: 'Fluxo Rapido Mensal'))
         dispenseTypeList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbf78a8c0006', code: 'DM', description: 'Dispensa Mensal'))
@@ -1100,12 +1101,14 @@ class BootStrap {
 
     List<Object> listDuration() {
         List<Object> durationList = new ArrayList<>()
+        durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbd136bf0006', description: 'Um dia', weeks: 0))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbcecfe30000', description: 'Uma Semana', weeks: 1))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbcf41280001', description: 'Duas Semanas', weeks: 2))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbcf9a550002', description: 'Um mês', weeks: 4))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbd02e620003', description: 'Dois meses', weeks: 8))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbd079e20004', description: 'Três meses', weeks: 12))
         durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbd136bf0005', description: 'Seis meses', weeks: 24))
+        durationList.add(new LinkedHashMap(id: 'ff8081817cbbce66017cbbd136bf0007', description: ' Um ano', weeks: 48))
 
         return durationList
     }
@@ -1624,7 +1627,8 @@ class BootStrap {
         therapeuticRegimenList.add(new LinkedHashMap(id: '3116136c-675c-4936-af9b-c8976a624c14', regimen_scheme: 'TTPT - INH300', code: 'TPT - INH300', openmrs_uuid: 'e1d43e52-1d5f-11e0-b929-000c29ad1d07', active: true, description: 'TPT - INH300', clinical_service_id: '6D12193B-7D5D-4665-8FC6-A03855986FBD'))
 
         therapeuticRegimenList.add(new LinkedHashMap(id: '017b6045-2c7c-437c-96c1-8e0867c6b579', regimen_scheme: 'TDF+3TC PrEP', code: 'TDF+3TC PrEP', openmrs_uuid: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', active: true, description: 'TDF+3TC PrEP', clinical_service_id: '165C876C-F850-436F-B0BB-80D519056BC3'))
-        therapeuticRegimenList.add(new LinkedHashMap(id: 'bbcf6efc-be7f-4011-821d-04b4683c327e', regimen_scheme: 'Cabotegravir PrEP', code: 'Cabotegravir PrEP', openmrs_uuid: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', active: false, description: 'Cabotegravir PrEP', clinical_service_id: '165C876C-F850-436F-B0BB-80D519056BC3'))
+        therapeuticRegimenList.add(new LinkedHashMap(id: 'bbcf6efc-be7f-4011-821d-04b4683c327e', regimen_scheme: 'Cabotegravir PrEP', code: 'Cabotegravir PrEP', openmrs_uuid: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', active: true, description: 'Cabotegravir PrEP', clinical_service_id: '165C876C-F850-436F-B0BB-80D519056BC3'))
+        therapeuticRegimenList.add(new LinkedHashMap(id: 'bb77f680-de8e-4741-85be-db262b10f10d', regimen_scheme: 'LEN (PreP)', code: 'PreP_LEN', openmrs_uuid: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', active: true, description: 'LEN (PreP)', clinical_service_id: '165C876C-F850-436F-B0BB-80D519056BC3'))
 
         return therapeuticRegimenList
 
@@ -1668,7 +1672,7 @@ class BootStrap {
         listDrug.add(new LinkedHashMap(id: '135b1a6f-0791-47d4-8e8e-6f8b75bab054', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 2, pack_size: 60, name: '[3TC/AZT] Lamivudina 30mg/ Zidovudina 60mg', uuid_openmrs: '08S40Z-fc-6563-49e4-bf81-a456bf79ec88', fnm_code: '08S40Z', default_treatment: 0, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: 'f8a6a5be-9737-474b-ade2-b2789610d7ee', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 2, pack_size: 120, name: '[LPV/RTV] Lopinavir/Ritonavir -Aluvia 200mg/50mg', uuid_openmrs: '08S38Z-99-3fe6-48b7-9b25-3052660f3d8b', fnm_code: '08S38Z', default_treatment: 2, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '909a8ee5-30cd-45ef-8540-0a44f26a1a09', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 60, name: '[ABC/3TC] Abacavir 60 and Lamivudina 30mg', uuid_openmrs: '08S01ZZ-2e-29dd-40aa-94b4-0d4fe65e081c', fnm_code: '08S01ZZ', default_treatment: 0, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
-        listDrug.add(new LinkedHashMap(id: '909a8ee5-30cd-45ef-8540-0a44f26a1a09', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 60, name: '[ABC/3TC] Abacavir 60mg/ Lamivudina 30mg', uuid_openmrs: ' 08S01ZWi-527b-4c8c-9282-21826775e25b', fnm_code: '08S01ZWi', default_treatment: 0, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
+        listDrug.add(new LinkedHashMap(id: 'f5d786b4-9d65-472d-8720-b59f0a4db033', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 30, name: '[ABC/3TC] Abacavir 60mg/ Lamivudina 30mg 30 Comp.', uuid_openmrs: '08S01ZWi-527b-4c8c-9282-21826775e25b', fnm_code: '08S01ZWi.', default_treatment: 0, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '3c6518d4-ad5b-445e-b3d4-8812363e056c', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 2, pack_size: 60, name: '[3TC/D4T/NVP] Lamivudina 150mg/Stavudina 30mg/Nevirapina 200mg', uuid_openmrs: '08S4X-833-b26a-4996-8066-48847431404a', fnm_code: '08S4X', default_treatment: 1, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '10a8ead6-f561-4440-b483-4261e27be295', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 30, name: '[ABC/3TC] Abacavir 600mg/Lamivudina 300mg', uuid_openmrs: '08S01ZY-d7-4218-4032-aa8c-615aec71a218', fnm_code: '08S01ZY', default_treatment: 0, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '8ba0bfde-b1b1-408a-806f-4683f2bb17c1', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 2, pack_size: 60, name: '[3TC/AZT] Lamivudina 150mg/ Zidovudina 300mg', uuid_openmrs: '08S40-833-b26a-4996-8066-48847431404a', fnm_code: '08S40', default_treatment: 1, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
@@ -1716,13 +1720,14 @@ class BootStrap {
         listDrug.add(new LinkedHashMap(id: 'A487066D-31F1-43C2-AA40-7720071F8310', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 60, name: '[D4T/3TC] Estavudina 40mg/Lamivudina 150mg ', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S33', default_treatment: 1, default_period_treatment: 'Dia', active: false, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '0064E589-AB56-4D06-B52C-AFF6D8BDE4D5', form_id: '74C8F060-1EA4-45E9-94DB-2DE6775E6481', default_times: 1, pack_size: 30, name: '[LPV/RTV] Lopinavir 133,3mg/Ritonavir 33,3mg Gelatinosas', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S38', default_treatment: 1, default_period_treatment: 'Dia', active: false, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
 
-        listDrug.add(new LinkedHashMap(id: '04BCD7CD-5770-4140-BAA2-931DC70EA2E9', form_id: 'E8427B78-B4B2-4570-8721-03A60425909D', default_times: 1, pack_size: 3, name: '[CAB-LA] Cabotegravir 600mg/3ml Inj', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18ZW', default_treatment: 1, default_period_treatment: 'Mês', active: false, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
-        listDrug.add(new LinkedHashMap(id: 'E7C7B604-0C34-48B3-A941-6DF3ADBEA3A8', form_id: 'A19B6D0E-4F11-42C9-B720-9C8B617E29F8', default_times: 1, pack_size: 1, name: '[DPV-VR] Dapivirina anel vaginal 25mg', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18ZY', default_treatment: 1, default_period_treatment: 'Mês', active: false, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
-
+        listDrug.add(new LinkedHashMap(id: '04BCD7CD-5770-4140-BAA2-931DC70EA2E9', form_id: 'E8427B78-B4B2-4570-8721-03A60425909D', default_times: 1, pack_size: 3, name: '[CAB-LA] Cabotegravir 600mg/3ml Inj', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18ZW', default_treatment: 1, default_period_treatment: 'Mês', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
+        listDrug.add(new LinkedHashMap(id: 'E7C7B604-0C34-48B3-A941-6DF3ADBEA3A8', form_id: 'A19B6D0E-4F11-42C9-B720-9C8B617E29F8', default_times: 1, pack_size: 1, name: '[DPV-VR] Dapivirina anel vaginal 25mg', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18ZY', default_treatment: 1, default_period_treatment: 'Mês', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
 
         listDrug.add(new LinkedHashMap(id: '640452ab-3978-48e0-94e6-16c9a426ce5a', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 90, name: 'Abacavir+Lamivudina+Dolutegravir; 60mg+30mg+5mg 90 Comp', uuid_openmrs: '08S01ZV-dce62-4881-9798-0274a32a5fab', fnm_code: '08S01ZV', default_treatment: 1, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
         listDrug.add(new LinkedHashMap(id: '0060cdd3-44ee-4514-9ea4-5b283b7ea433', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 180, name: 'Abacavir+Lamivudine+Dolutegravir; 60mg+30mg+5mg 180 Comp', uuid_openmrs: '08S01ZVI-731c-44c9-b1da-8507fecd55b8', fnm_code: '08S01ZVI', default_treatment: 1, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
 
+        listDrug.add(new LinkedHashMap(id: 'b18e45eb-8215-4d40-aea3-50697e25cdc5', form_id: 'E8427B78-B4B2-4570-8721-03A60425909D', default_times: 1, pack_size: 3, name: 'Lenacapavir; 463,5mg/1,5mL; 2 Frascos; Inj', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18XZ', default_treatment: 1, default_period_treatment: 'Mês', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
+        listDrug.add(new LinkedHashMap(id: '1c789f83-cc5b-420d-b6f9-e06a87cba296', form_id: 'AB6442FF-6DA0-46F2-81E1-F28B1A44A31C', default_times: 1, pack_size: 4, name: 'Lenacapavir; 300mg, 4Comp; Comp', uuid_openmrs: 'e1e59e0e-1d5f-11e0-b929-000c29ad1d07', fnm_code: '08S18ZX', default_treatment: 1, default_period_treatment: 'Dia', active: true, clinical_service_id: '80A7852B-57DF-4E40-90EC-ABDE8403E01F'))
 
         return listDrug
 
@@ -2027,6 +2032,9 @@ class BootStrap {
 
         listDrugRegimen.add(new LinkedHashMap(regimen_id: 'TPT - MR- LFX250', drug_id: '08H07Y'))
         listDrugRegimen.add(new LinkedHashMap(regimen_id: 'TPT - MR- LFX250', drug_id: '08H07'))
+
+        listDrugRegimen.add(new LinkedHashMap(regimen_id: 'PreP_LEN', drug_id: '08S18XZ'))
+        listDrugRegimen.add(new LinkedHashMap(regimen_id: 'PreP_LEN', drug_id: '08S18ZX'))
 
         return listDrugRegimen
 

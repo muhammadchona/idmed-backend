@@ -129,7 +129,7 @@ environments:
   development:
     dataSource:
       dbCreate: update
-      url: jdbc:postgresql://localhost:9876/namuinho
+      url: jdbc:postgresql://localhost:9876/coalane
   test:
     dataSource:
       dbCreate: update
