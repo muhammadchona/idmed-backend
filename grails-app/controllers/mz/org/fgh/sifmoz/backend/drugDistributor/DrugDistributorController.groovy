@@ -185,29 +185,30 @@ class DrugDistributorController extends RestfulController {
     def updateDrugDistributorStatus(String idDrugDistributor, String status) {
         DrugDistributor drugDistributor = drugDistributorService.get(idDrugDistributor)
         List<StockDistributorBatch> batchs = stockDistributorBatchService.getStockDistributorBatchByDrugDistributorId(idDrugDistributor)
+
+        // A repeated confirmation (for example, after a client timeout/retry)
+        // must not credit the receiving clinic's stock more than once.
+        if (status.equalsIgnoreCase("C") && drugDistributor.status?.equalsIgnoreCase("C")) {
+            respond drugDistributor, [status: OK, view: "show"]
+            return
+        }
+
         drugDistributor.setStatus(status)
         if (status.equalsIgnoreCase("C")) {
             List<Stock> newStockList = new ArrayList<>()
-         StockEntrance entrance = stockEntranceService.getByClinicIdAndOrderNumber(drugDistributor.clinicId,"Dist_" + drugDistributor.stockDistributor.orderNumber)
+            StockEntrance entrance = stockEntranceService.getByClinicIdAndOrderNumber(drugDistributor.clinicId,"Dist_" + drugDistributor.stockDistributor.orderNumber)
             if (!entrance) entrance = getStockEntranceInstance(drugDistributor)
             for (StockDistributorBatch batch : batchs) {
-                //make new Stock entrance because the batch number doesnt exist
-                if (!stockService.existsBatchNumber(batch.getStock().getBatchNumber(), batch.getDrugDistributor().getClinicId())) {
-                    generateNewStocksList(batch, newStockList, entrance)
-                } else {
-                    // make adjustments because the batch number exists
-                    Stock stock  = stockService.getStockByBatchNumberAndClinic(batch.getStock().getBatchNumber(), batch.getDrugDistributor().getClinicId())
-                    ReferedStockMoviment reference = generateAdjustment(batch, stock)
-                    if (!Objects.isNull(reference)) {
-                        referedStockMovimentService.save(reference)
-                    }
-                }
+                // Every confirmed distribution is a new receipt. The same batch
+                // number may legitimately appear in different stock entrances,
+                // so it must not be merged into an arbitrary existing Stock row.
+                generateNewStocksList(batch, newStockList, entrance)
             }
 
-
-            entrance.stocks = new ArrayList<Stock>()
-            entrance.stocks.addAll(newStockList)
             if (!newStockList.isEmpty()) {
+                newStockList.each { Stock receivedStock ->
+                    entrance.addToStocks(receivedStock)
+                }
                 stockEntranceService.save(entrance)
             }
         }  else if (status.equalsIgnoreCase("A") ||   status.equalsIgnoreCase("R")  ) {
@@ -260,33 +261,6 @@ class DrugDistributorController extends RestfulController {
         entrance.setNotes("Entrada criada aparitir de distribuicao")
         entrance.id = UUID.randomUUID()
         return entrance
-    }
-
-    private ReferedStockMoviment generateAdjustment(StockDistributorBatch batch, Stock stock) {
-        ReferedStockMoviment reference = new ReferedStockMoviment()
-        reference.id = UUID.randomUUID()
-        reference.setClinic(batch.getDrugDistributor().getClinic())
-        reference.setOrderNumber("Ordem_Ajuste_Distribuicao")
-        reference.setOrigin("Ajuste_Distribuicao")
-        reference.setDate(new Date())
-        reference.setQuantity(batch.getQuantity())
-        reference.updateStatus = 'P'
-
-        StockReferenceAdjustment stockReferenceAdjustment = new StockReferenceAdjustment()
-        stockReferenceAdjustment.adjustedValue = batch.getQuantity()
-        stockReferenceAdjustment.setBalance(stock.stockMoviment + batch.getQuantity())
-        stockReferenceAdjustment.id = UUID.randomUUID()
-        stockReferenceAdjustment.setOperation(StockOperationType.findByCode("AJUSTE_POSETIVO"))
-        stockReferenceAdjustment.setAdjustedStock(stock)
-
-        stockReferenceAdjustment.setCaptureDate(batch.getStockDistributor().getCreationDate())
-        stockReferenceAdjustment.setClinic(batch.getDrugDistributor().getClinic())
-        stockReferenceAdjustment.setNotes("Recebimento de medicamentos vindo da farmacia para o sector")
-        stockReferenceAdjustment.setReference(reference)
-
-        reference.adjustments = new HashSet<StockReferenceAdjustment>()
-        reference.adjustments.add(stockReferenceAdjustment)
-        return reference
     }
 
     private void generateNewStocksList(StockDistributorBatch batch, ArrayList<Stock> newStockList, StockEntrance entrance) {
